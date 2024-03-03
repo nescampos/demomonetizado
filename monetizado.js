@@ -348,7 +348,7 @@ const monetizadoAbi = [
 
 
 
-async function getContract(contractNetwork, userAddress) {
+async function getContract(web3,contractNetwork, userAddress) {
     var contractPublic = await new web3.eth.Contract(monetizadoAbi,contractNetwork);
     if(userAddress != null && userAddress != undefined) {
       contractPublic.defaultAccount = userAddress;
@@ -397,7 +397,8 @@ window[monetizadoProp] = {
     connectWeb3 : function(urlRPC) {
         return new Web3(new Web3.providers.HttpProvider(urlRPC));
     },
-    userHasAccess: async function() {
+    userHasAccess: async function(Web3) {
+
         var accounts = await ethereum.request({method: 'eth_requestAccounts'});
         var account = accounts[0];
         
@@ -409,7 +410,7 @@ window[monetizadoProp] = {
         const creatorId = creatorParts[0];
         const sequenceId = creatorParts[1];
 
-        var contractPublic = await getContract(contractNetwork,account);
+        var contractPublic = await getContract(Web3,contractNetwork,account);
 
         if(contractPublic != undefined) {
             var user = await ethereum
@@ -427,7 +428,7 @@ window[monetizadoProp] = {
               return user[0];
           }
     },
-    getContentInfo: async function(){
+    getContentInfo: async function(Web3){
         var accounts = await ethereum.request({method: 'eth_requestAccounts'});
         var account = accounts[0];
         
@@ -439,7 +440,7 @@ window[monetizadoProp] = {
         const creatorId = creatorParts[0];
         const sequenceId = creatorParts[1];
 
-        var contractPublic = await getContract(contractNetwork,account);
+        var contractPublic = await getContract(Web3,contractNetwork,account);
 
         if(contractPublic != undefined) {
             var contentInfo = await ethereum
@@ -457,7 +458,7 @@ window[monetizadoProp] = {
               return contentInfo;
           }
     },
-    payContent: async function(amount){
+    payContent: async function(Web3,amount){
         var accounts = await ethereum.request({method: 'eth_requestAccounts'});
         var account = accounts[0];
         
@@ -469,7 +470,7 @@ window[monetizadoProp] = {
         const creatorId = creatorParts[0];
         const sequenceId = creatorParts[1];
 
-        var contractPublic = await getContract(contractNetwork,account);
+        var contractPublic = await getContract(Web3,contractNetwork,account);
 
         if(contractPublic != undefined) {
             const query = contractPublic.methods.payAccess(creatorId,sequenceId);
