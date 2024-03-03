@@ -356,6 +356,7 @@ async function getContract(web3,contractNetwork, userAddress) {
     return contractPublic;
   }
 
+var iface = new ethers.utils.Interface(monetizadoAbi);
 
 // Nombre de la nueva propiedad
 const monetizadoProp = 'monetizado';
@@ -455,7 +456,10 @@ window[monetizadoProp] = {
                 ],
               });
               contentInfo = iface.decodeFunctionResult("getProtectedContentByAddressAndId", contentInfo);
-              return contentInfo;
+              if(contentInfo.length > 0) {
+                return contentInfo[0];
+              }
+              return null;
           }
     },
     payContent: async function(Web3,amount){
@@ -475,7 +479,7 @@ window[monetizadoProp] = {
         if(contractPublic != undefined) {
             const query = contractPublic.methods.payAccess(creatorId,sequenceId);
             const encodedABI = query.encodeABI();
-            const gasPrice = web3.utils.toHex(await web3.eth.getGasPrice());
+            const gasPrice = Web3.utils.toHex(await Web3.eth.getGasPrice());
             var payContentId = await ethereum
             .request({
               method: 'eth_sendTransaction',
@@ -484,10 +488,10 @@ window[monetizadoProp] = {
                   from: account, 
                   to: contractNetwork,
                   data: encodedABI,
-                  value: web3.utils.numberToHex(amount),
+                  value: Web3.utils.numberToHex(amount),
                   gasLimit: '0x5208', // Customizable by the user during MetaMask confirmation.
                   maxPriorityFeePerGas: gasPrice, // Customizable by the user during MetaMask confirmation.
-                  //maxFeePerGas: gasPrice, // Customizable by the user during MetaMask confirmation.
+                  maxFeePerGas: gasPrice, // Customizable by the user during MetaMask confirmation.
                 },
               ],
             });

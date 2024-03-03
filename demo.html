@@ -10,9 +10,52 @@
 
 
 
-        <div class="protected-content">
+        <div id="protected-content">
             This content is protected, just for subscriptors.
+            
+            To get access to the exclusive content, you need to pay: <span id="amountToPay"></span>
+
+            <button id="payBtn" onclick="payForAccess()">Pay and access</button>
         </div>
+        <div id="exclusive-content">
+            You paid, and you have access for this exclusive content.
+        </div>
+
+
+
+        <script type="text/javacript">
+            var web3 = new Web3(new Web3.providers.HttpProvider("https://opbnb-testnet-rpc.bnbchain.org"));
+
+            function checkIfUserHasAccess() {
+                var access = await window.monetizado.userHasAccess(web3);
+                if(access) {
+                    document.getElementById("protected-content").style.display = "none";
+                    document.getElementById("exclusive-content").style.display = "block";
+                    document.getElementById("payBtn").style.display = "none";
+                } else {
+                    document.getElementById("protected-content").style.display = "block";
+                    document.getElementById("exclusive-content").style.display = "none";
+                    document.getElementById("payBtn").style.display = "block";
+                }
+            }
+
+            function verifyContentInfo() {
+                var info = await window.monetizado.getContentInfo(web3);
+                if(info != null) {
+                    document.getElementById("amountToPay").textContent = web3.utils.fromWei(info[0].accessCost.toBigInt(),"ether");
+                    
+                }
+            }
+
+            function payForAccess() {
+                var amount = document.getElementById("amountToPay").textContent;
+                var txId = await window.monetizado.payContent(web3,amount);
+                return txId;
+            }
+
+            checkIfUserHasAccess();
+            verifyContentInfo();
+        </script>
 
     </body>
 
