@@ -462,6 +462,33 @@ window[monetizadoProp] = {
               return null;
           }
     },
+	getContentList: async function(Web3){
+        var accounts = await ethereum.request({method: 'eth_requestAccounts'});
+        var account = accounts[0];
+        
+        const monetizationTag = document.querySelector('link[rel="monetizado"]');
+        const parts = monetizationTag.href.split("://");
+
+        const contractNetwork = networks[parts[0]];
+
+        var contractPublic = await getContract(Web3,contractNetwork,account);
+
+        if(contractPublic != undefined) {
+            var contentInfo = await ethereum
+              .request({
+                method: 'eth_call',
+                params: [
+                  {
+                    from: account, // The user's active address.
+                    data: contractPublic.methods.getProtectedContentsForCurrentUser().encodeABI(),
+                    to: contractNetwork
+                  },
+                ],
+              });
+              contentInfo = iface.decodeFunctionResult("getProtectedContentsForCurrentUser", contentInfo);
+              return contentInfo;
+          }
+    },
     payContent: async function(Web3,amount){
         var accounts = await ethereum.request({method: 'eth_requestAccounts'});
         var account = accounts[0];
